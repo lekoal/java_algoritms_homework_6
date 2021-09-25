@@ -11,12 +11,25 @@ public class MyTreeMap<K extends Comparable<K>, V> {
         Node left;
         Node right;
         int size;
+        int height;
 
         public Node(K key, V value) {
             this.key = key;
             this.value = value;
             this.size = 1;
+            this.height = 0;
         }
+    }
+
+    public int height() {
+        return height(root);
+    }
+
+    private int height(Node node) { // Метод, позволяющий определить высоту узла
+        if (node == null) {
+            return 0;
+        }
+        return node.height;
     }
 
     public int size() {
@@ -66,7 +79,7 @@ public class MyTreeMap<K extends Comparable<K>, V> {
     public void put(K key, V value) {
         checkKeyNotNull(key);
         if (value == null) {
-            // remove(key)
+            remove(key);
             return;
         }
         root = put(root, key, value);
@@ -85,6 +98,7 @@ public class MyTreeMap<K extends Comparable<K>, V> {
             node.right = put(node.right, key, value);
         }
         node.size = size(node.left) + size(node.right) + 1;
+        setHeight(node); // Вызов метода задания высоты узла
         return node;
     }
 
@@ -112,6 +126,7 @@ public class MyTreeMap<K extends Comparable<K>, V> {
         }
         node.left = removeMin(node.left);
         node.size = size(node.left) + size(node.right) + 1;
+        setHeight(node);
         return node;
     }
 
@@ -142,6 +157,7 @@ public class MyTreeMap<K extends Comparable<K>, V> {
             node.left = temp.left;
         }
         node.size = size(node.left) + size(node.right) + 1;
+        setHeight(node);
         return node;
     }
 
@@ -157,5 +173,39 @@ public class MyTreeMap<K extends Comparable<K>, V> {
         return toString(node.left) + " " +
                 node.key + "=" + node.value + " " +
                 toString(node.right);
+    }
+
+    private void setHeight(Node node) { // Метод задания высоты для узла
+        if (node.left == null && node.right == null) {
+            node.height = 0;
+        } else {
+            if (node.right == null || (height(node.left) > height(node.right))) {
+                node.height = height(node.left) + 1;
+            } else if (node.left == null || (height(node.left) < height(node.right))){
+                node.height = height(node.right) + 1;
+            } else { // Если высоты дочерних узлов равны
+                node.height = height(node.left) + 1;
+            }
+        }
+    }
+
+    public boolean isBalanced() {
+        return isBalanced(root);
+    }
+
+    private boolean isBalanced(Node node) { // Метод проверки на сбалансированность узлов дерева
+        return Math.abs(height(node.right) - height(node.left)) <= 1;
+    }
+
+    public void inOrder() {
+        inOrder(root);
+    }
+
+    private void inOrder(Node node) { // Метод обхода дерева
+        if (node != null) {
+            inOrder(node.left);
+            System.out.println(node.key + " " + height(node));
+            inOrder(node.right);
+        }
     }
 }
